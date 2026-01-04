@@ -3,6 +3,7 @@ from .views import (
     ExamListAPIView,
     ExamDetailAPIView,
     SubmitExamAPIView,
+    MySubmissionsAPIView,
 )
 
 
@@ -10,5 +11,5 @@ urlpatterns = [
     path("exams/", ExamListAPIView.as_view()),
     path("exams/<int:exam_id>/", ExamDetailAPIView.as_view()),
     path("exams/<int:exam_id>/submit/", SubmitExamAPIView.as_view()),
-
+    path("my-submissions/", MySubmissionsAPIView.as_view()),
 ]

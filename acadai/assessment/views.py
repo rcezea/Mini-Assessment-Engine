@@ -72,3 +72,26 @@ class SubmitExamAPIView(APIView):
 
         grade_submission(submission.id)
         return Response({"message": "Submitted successfully"})
+
+
+class MySubmissionsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        submissions = (
+            Submission.objects
+            .filter(student=request.user)
+            .select_related("exam")
+            .prefetch_related("answers")
+        )
+
+        data = []
+        for s in submissions:
+            data.append({
+                "exam": s.exam.title,
+                "score": s.score,
+                "graded": s.graded,
+                "submitted_at": s.submitted_at
+            })
+
+        return Response(data)
