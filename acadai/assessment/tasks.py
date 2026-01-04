@@ -1,4 +1,5 @@
 from .models import Submission
+from .services import grade_text_answer
 
 
 def grade_submission(submission_id):
@@ -19,6 +20,10 @@ def grade_submission(submission_id):
             else:
                 # print("Second", idx, "Text: ", ans.text, " Expected: ", q.expected_answer)
                 question_score = 0
+
+        elif q.question_type == "TEXT":
+            similarity = grade_text_answer(ans.text, q.expected_answer)
+            question_score = similarity * q.max_score
 
         ans.score = question_score
         ans.save()
