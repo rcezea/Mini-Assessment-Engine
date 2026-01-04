@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Exam(models.Model):
@@ -36,3 +37,23 @@ class Question(models.Model):
 
     def __str__(self):
         return self.prompt[:50]
+
+
+class Submission(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE)
+    score = models.FloatField(default=0)
+    graded = models.BooleanField(default=False)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("student", "exam") # One submission per exam
+        indexes = [models.Index(fields=["student", "exam"])]
+
+
+class Answer(models.Model):
+    submission = models.ForeignKey(Submission, related_name="answers",
+                                   on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    text = models.TextField()
+    score = models.FloatField(default=0)
