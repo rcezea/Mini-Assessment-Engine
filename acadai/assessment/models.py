@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 
 
 class Exam(models.Model):
@@ -28,6 +27,10 @@ class Question(models.Model):
                              on_delete=models.CASCADE)
     question_type = models.CharField(max_length=10, choices=QUESTION_TYPES)
     prompt = models.TextField()
+    option_a = models.CharField(max_length=255, blank=True)
+    option_b = models.CharField(max_length=255, blank=True)
+    option_c = models.CharField(max_length=255, blank=True)
+    option_d = models.CharField(max_length=255, blank=True)
     expected_answer = models.TextField()
     max_score = models.FloatField(default=1)
 
