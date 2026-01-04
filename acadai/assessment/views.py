@@ -70,8 +70,9 @@ class SubmitExamAPIView(APIView):
                 text=answer_text
             )
 
-        grade_submission(submission.id)
-        return Response({"message": "Submitted successfully"})
+        score = grade_submission(submission.id)
+        return Response({"message": "Submitted successfully",
+                         "score": f"{score}%"})
 
 
 class MySubmissionsAPIView(APIView):
@@ -89,7 +90,7 @@ class MySubmissionsAPIView(APIView):
         for s in submissions:
             data.append({
                 "exam": s.exam.title,
-                "score": s.score,
+                "score": f"{s.score}%",
                 "graded": s.graded,
                 "submitted_at": s.submitted_at
             })

@@ -33,6 +33,8 @@ def grade_submission(submission_id):
 
     # print(total, max_total)
 
-    submission.score = round((total / max_total) * 100, 2) if max_total else 0
+    score = round((total / max_total) * 100, 2) if max_total else 0
+    submission.score = score
     submission.graded = True
     submission.save()
+    return score
