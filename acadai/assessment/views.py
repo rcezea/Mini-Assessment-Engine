@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 
 
 from .models import Exam, Submission, Answer
+from .tasks import grade_submission
 
 
 class ExamListAPIView(APIView):
@@ -41,3 +42,33 @@ class ExamDetailAPIView(APIView):
                 for q in exam.questions.all()
             ]
         })
+
+
+class SubmitExamAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, exam_id):
+        exam = get_object_or_404(Exam, id=exam_id)
+
+        if Submission.objects.filter(student=request.user, exam=exam).exists():
+            return Response({"error": "Already submitted"}, status=400)
+
+        answers = request.data.get("answers")
+
+        if not isinstance(answers, dict):
+            return Response(
+                {"error": "Answers must be an object keyed by question_id"},
+                status=400
+            )
+
+        submission = Submission.objects.create(student=request.user, exam=exam)
+
+        for q_id, answer_text in answers.items():
+            Answer.objects.create(
+                submission=submission,
+                question_id=q_id,
+                text=answer_text
+            )
+
+        grade_submission(submission.id)
+        return Response({"message": "Submitted successfully"})

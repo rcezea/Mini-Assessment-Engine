@@ -1,0 +1,33 @@
+from .models import Submission
+
+
+def grade_submission(submission_id):
+    submission = (Submission.objects.select_related("exam")
+                  .prefetch_related("answers__question")
+                  .get(id=submission_id))
+
+    total = 0
+    max_total = 0
+
+    for idx, ans in enumerate(submission.answers.all()):
+        q = ans.question
+
+        if q.question_type == "MCQ":
+            if ans.text.strip().upper() == q.expected_answer.strip().upper():
+                # print("First", idx, "Text: ", ans.text, " Expected: ", q.expected_answer)
+                question_score = q.max_score
+            else:
+                # print("Second", idx, "Text: ", ans.text, " Expected: ", q.expected_answer)
+                question_score = 0
+
+        ans.score = question_score
+        ans.save()
+
+        total += question_score
+        max_total += q.max_score
+
+    # print(total, max_total)
+
+    submission.score = round((total / max_total) * 100, 2) if max_total else 0
+    submission.graded = True
+    submission.save()
